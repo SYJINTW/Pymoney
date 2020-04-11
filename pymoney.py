@@ -1,16 +1,25 @@
+#!/usr/bin/env python3
 import sys
 
-record = [['a',20],['a',20],['a',20],['a',20],['a',20]]
+#reset
+#=======================================================================================
+record = [['a',20],['a',30],['a',20],['a',20],['a',30]]
 
+
+
+#function
+#=======================================================================================
 def divide():
     print('='*40)
 
+
 #user input 'add'
 def user_add(s):
+    global balance                                              #set 'balance' in the func global
     s = s.split(',')
     for i in s:
         i = i.split()
-        i[1] = int(i[1])
+        i[i] = int(i[1])
         balance += i[1]
         record.append(i)
     return 0
@@ -27,16 +36,26 @@ def user_view():
 
 #user input 'delete'
 def user_delete(s):
+    global balance                                              #set 'balance' in the func global
+    s = s.split()
+    s[1] = int(s[1])
+    if s in record:                                             #check if value exist
+        last = len(record) - record[::-1].index(s) - 1          #find the last exist value index
+        balance -= s[1]                                         #count balance
+        del(record[last])                                       #delete value
+    else:
+        pass
+
     return 0
 
 
-
-
+#main code
+#=======================================================================================
 #initial account balance
 balance = 0
 balance = int(input('How many money do you have? '))
 while True:
-    user_input = input('What do you want to do (add/view/delete/exit)?')
+    user_input = input('What do you want to do (add/view/delete/exit)? ')
     if user_input == 'add':
         user_add(input())
     elif user_input == 'view':
