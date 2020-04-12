@@ -9,19 +9,19 @@ record = [['a',20],['a',30],['a',20],['a',20],['a',30]]
 
 #function
 #=======================================================================================
-def divide():
+def divide():                                                   #divide line function
     print('='*40)
 
 
 #user input 'add'
 def user_add(s):
     global balance                                              #set 'balance' in the func global
-    s = s.split(',')
+    s = s.split(',')                                            #set list split by ','
     for i in s:
         i = i.split()
         i[i] = int(i[1])
         balance += i[1]
-        record.append(i)
+        record.append(i)                                        #append user input to record list
     return 0
 
 #user input 'view'
@@ -53,19 +53,29 @@ def user_delete(s):
 #=======================================================================================
 #initial account balance
 balance = 0
-balance = int(input('How many money do you have? '))
+try:
+    balance = int(input('How many money do you have? '))
+except ValueError:
+    sys.stderr.write('Input invalid integer.\n')
+
 while True:
     user_input = input('What do you want to do (add/view/delete/exit)? ')
     if user_input == 'add':
-        user_add(input())
+        try:
+            user_add(input())
+        except Exception:
+            sys.stderr.write('Wrong format\n')
     elif user_input == 'view':
         user_view()
     elif user_input == 'delete':
-        user_delete(input())
+        try:
+            user_delete(input())
+        except Exception:
+            sys.stderr.write('Wrong format\n')
     elif user_input == 'exit':
         break
     else:
-        sys.stderr.write('Input unknown keywords.')
+        sys.stderr.write('Input unknown keywords.\n')
 
 
 
