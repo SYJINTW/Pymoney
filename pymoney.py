@@ -12,9 +12,9 @@ file_path = '../record.txt'                                 #difine file path
 def divide():                                               #divide line function
     print('='*40)
 
-def read_balance():                                         #read balance function and return integer
+def read_balance():                                         #read balance function and return float
     with open(file_path, 'r') as fh:
-        balance_in_file = int(fh.readline())                #read first line in file
+        balance_in_file = float(fh.readline())                #read first line in file
     return balance_in_file
 
 def write_balance(balance):                                 #write balance at the first in the file
@@ -37,7 +37,7 @@ def user_add(user_input):                                   #user input 'add'
         for i in user_input_comma:
             try:                                            #set try-except to skip the error data
                 i = i.split()                               #set list split by ' '
-                i[1] = int(i[1])
+                i[1] = float(i[1])
                 balance += i[1]
                 fh.write(str(i[0])+':'+str(i[1])+'\n')      #append user input to record file
             except IndexError:                              #if the format is wrong
@@ -51,15 +51,15 @@ def user_add(user_input):                                   #user input 'add'
     if error_exist == True:                                 #format remind
         sys.stderr.write('The format of a record should be like this: breakfast -50\n\n')
     else:
-        pass
-    return 0
+        print('Add Success\n')
+        return True
 
 def user_view():                                            #user input 'view'
     print("Here's your expense and income records:")
     print('{:<20}{:<20}'.format('Description', 'Amount'))
     divide()
     with open(file_path, 'r') as fh:
-        balance = int(fh.readline())
+        balance = float(fh.readline())
         for line in fh.readlines():
             content = line.split(':')
             print(f'{content[0]:<20}{content[1]}', end='')
@@ -71,14 +71,16 @@ def user_delete(user_input):                                #user input 'delete'
     lines = []
     del_record = []
     s = user_input.split()
+    s[1] = str(float(s[1]))
+
     with open(file_path, 'r') as fh:
-        balance = fh.readline()
+        balance = float(fh.readline())
         for line in fh.readlines():
             lines.append(re.split(':|\n', line)[:2])        #split ':' and '\n' patterns and append the split_list into lines
 
     if s in lines:                                          #check if value exist
         last_index = len(lines) - lines[::-1].index(s) - 1  #find the last exist value index
-        s[1] = int(s[1])
+        s[1] = float(s[1])
         balance -= s[1]                                     #count balance
         del(lines[last_index])                              #delete value
 
@@ -89,9 +91,10 @@ def user_delete(user_input):                                #user input 'delete'
         with open(file_path, 'w') as fh:
             fh.writelines(del_record)
     else:
-        print(f'There is no record with ({s[0]} {s[1]}). Fail to delete a record')
-         
-    return 0
+        sys.stderr.write(f'There is no record with ({s[0]} {s[1]}). Fail to delete a record\n\n')
+        return False
+    print('Delete Success\n')  
+    return True
 
 def user_reset():                                           #user input 'reset'
     os.remove(file_path)
@@ -104,11 +107,11 @@ def user_reset():                                           #user input 'reset'
 if os.path.exists(file_path):                               #check if file exist
     print('Welcome back!\n')
 else:                                                       #do not exist then create new
-    balance = 0                                             #initial balance
+    balance = 0.0                                           #initial balance
     try:
-        balance = int(input('How much money do you have? '))
+        balance = float(input('How much money do you have? '))
     except ValueError:
-        sys.stderr.write('Invalid value for money. Set to 0 by default.\n')
+        sys.stderr.write('Invalid value for money. Set to 0 by default.\n\n')
     finally:
         write_balance(balance)
 
@@ -120,18 +123,18 @@ while True:
         user_view()
     elif user_input == 'delete':
         try:
-            user_delete(input())
+            user_delete(input())    
         except Exception:
-            sys.stderr.write('Wrong format\n')
+            sys.stderr.write('Wrong format\n\n')
     elif user_input == 'exit':
         break
     elif user_input == 'reset':
         user_reset()
         break
     else:
-        sys.stderr.write('Invalid command. Try again\n')
+        sys.stderr.write('Invalid command. Try again\n\n')
 
-print('Bye')
+print('Bye\n')
 
 
 
