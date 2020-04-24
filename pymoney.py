@@ -100,6 +100,25 @@ def user_reset():                                           #user input 'reset'
     os.remove(file_path)
     print(f'{file_path} has been Removed')
 
+def user_find(user_input):
+    user_input = user_input.replace(' ', '')
+    user_input_comma = user_input.split(',')
+    content = []
+    summary = 0.0
+    with open(file_path, 'r') as fh:
+        for line in fh.readlines():
+            content.append(re.split(':|\n', line)[:2])
+    divide()
+    for key in user_input_comma:
+        for i, j in content:
+            if key == i or key == j:
+                print(f'{i:<20}{j}')
+                summary += float(j)
+            else:
+                pass
+    divide()
+    print(f'Summary is {summary} dollars.\n')
+    return 0
 
 #main code
 #=======================================================================================
@@ -116,7 +135,7 @@ else:                                                       #do not exist then c
         write_balance(balance)
 
 while True:
-    user_input = input('What do you want to do (add/view/delete/exit/reset)? ')
+    user_input = input('What do you want to do (add/view/delete/exit/reset/find)? ')
     if user_input == 'add':
         user_add(input())
     elif user_input == 'view':
@@ -131,6 +150,8 @@ while True:
     elif user_input == 'reset':
         user_reset()
         break
+    elif user_input == 'find':
+        user_find(input())
     else:
         sys.stderr.write('Invalid command. Try again\n\n')
 
