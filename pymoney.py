@@ -1,92 +1,86 @@
 #!/usr/bin/env python3
 import sys
-import re
-import os.path
+import re                                                   #split multiple patterns
+import os.path                                              #check file exist
 
 #reset
 #=======================================================================================
-record = [['a',20],['a',30],['a',20],['a',20],['a',30]]
-file_path = '../record.txt'
-
-
+file_path = '../record.txt'                                 #difine file path
 
 #function
 #=======================================================================================
-def divide():                                                   #divide line function
+def divide():                                               #divide line function
     print('='*40)
 
-def read_balance():
+def read_balance():                                         #read balance function and return integer
     with open(file_path, 'r') as fh:
-        balance_in_file = int(fh.readline())
+        balance_in_file = int(fh.readline())                #read first line in file
     return balance_in_file
 
-def write_balance(balance):
+def write_balance(balance):                                 #write balance at the first in the file
     try:
         content = []
-        with open(file_path, 'r') as fh:
+        with open(file_path, 'r') as fh:                    #read the old file content
             content = fh.readlines()
-    except FileNotFoundError:
+    except FileNotFoundError:                               #for the new start
         pass
     finally:
-        with open(file_path, 'w') as fh:
+        with open(file_path, 'w') as fh:                    #rewrite the file with new balance
             fh.write(str(balance)+'\n')
-            fh.writelines(content[1:])
+            fh.writelines(content[1:])                      #skip the old balance
 
-#user input 'add'
-def user_add(user_input):
-    balance = read_balance()                                             #set 'balance' in the func global
-    error_exist = False
-    user_input_comma = user_input.split(',')                    #set list split by ','
-    with open(file_path, 'a') as fh:
+def user_add(user_input):                                   #user input 'add'
+    balance = read_balance()
+    error_exist = False                                     #error exist flag
+    user_input_comma = user_input.split(',')                #set list split by ','
+    with open(file_path, 'a') as fh:                        #add new data in the file
         for i in user_input_comma:
-            try:
-                i = i.split()
+            try:                                            #set try-except to skip the error data
+                i = i.split()                               #set list split by ' '
                 i[1] = int(i[1])
                 balance += i[1]
                 fh.write(str(i[0])+':'+str(i[1])+'\n')      #append user input to record file
-            except IndexError:
+            except IndexError:                              #if the format is wrong
                 error_exist = True
                 sys.stderr.write(f'Invalid format. Fail to add a record {i}.\n')
-            except ValueError:
+            except ValueError:                              #if i[1] is not integer
                 error_exist = True
                 sys.stderr.write(f'Invalid value for money. Fail to add a record {i}.\n')
     write_balance(balance)
 
-    if error_exist == True:
+    if error_exist == True:                                 #format remind
         sys.stderr.write('The format of a record should be like this: breakfast -50\n\n')
     else:
         pass
-
     return 0
 
-#user input 'view'
-def user_view():
+def user_view():                                            #user input 'view'
+    print("Here's your expense and income records:")
     print('{:<20}{:<20}'.format('Description', 'Amount'))
     divide()
     with open(file_path, 'r') as fh:
-        for line in fh.readlines()[1:]:
-            record = line.split(':')
-            sys.stdout.write(f'{record[0]:<20}{record[1]}')
+        balance = int(fh.readline())
+        for line in fh.readlines():
+            content = line.split(':')
+            print(f'{content[0]:<20}{content[1]}', end='')
     divide()
-    balance = read_balance()
-    print(f'Now you have {balance} dollars.')
+    print(f'Now you have {balance} dollars.\n')
     return 0
 
-#user input 'delete'
-def user_delete(user_input):
+def user_delete(user_input):                                #user input 'delete'
     lines = []
     del_record = []
-    balance = read_balance()                                              #set 'balance' in the func global
     s = user_input.split()
     with open(file_path, 'r') as fh:
-        for line in fh.readlines()[1:]:
-            lines.append(re.split(':|\n', line)[:2])
+        balance = fh.readline()
+        for line in fh.readlines():
+            lines.append(re.split(':|\n', line)[:2])        #split ':' and '\n' patterns and append the split_list into lines
 
-    if s in lines:                                             #check if value exist
-        last_index = len(lines) - lines[::-1].index(s) - 1          #find the last exist value index
+    if s in lines:                                          #check if value exist
+        last_index = len(lines) - lines[::-1].index(s) - 1  #find the last exist value index
         s[1] = int(s[1])
-        balance -= s[1]                                         #count balance
-        del(lines[last_index])                                       #delete value
+        balance -= s[1]                                     #count balance
+        del(lines[last_index])                              #delete value
 
         del_record.append(str(balance) + '\n')
         for i, j in lines:
@@ -99,24 +93,27 @@ def user_delete(user_input):
          
     return 0
 
+def user_reset():                                           #user input 'reset'
+    os.remove(file_path)
+    print(f'{file_path} has been Removed')
+
 
 #main code
 #=======================================================================================
 #initial account balance
-if os.path.exists(file_path):
-    print('Welcome back!')
-else:
-    balance = 0
+if os.path.exists(file_path):                               #check if file exist
+    print('Welcome back!\n')
+else:                                                       #do not exist then create new
+    balance = 0                                             #initial balance
     try:
-        balance = int(input('How many money do you have? '))
+        balance = int(input('How much money do you have? '))
     except ValueError:
         sys.stderr.write('Invalid value for money. Set to 0 by default.\n')
     finally:
         write_balance(balance)
 
-
 while True:
-    user_input = input('What do you want to do (add/view/delete/exit)? ')
+    user_input = input('What do you want to do (add/view/delete/exit/reset)? ')
     if user_input == 'add':
         user_add(input())
     elif user_input == 'view':
@@ -128,8 +125,13 @@ while True:
             sys.stderr.write('Wrong format\n')
     elif user_input == 'exit':
         break
+    elif user_input == 'reset':
+        user_reset()
+        break
     else:
         sys.stderr.write('Invalid command. Try again\n')
+
+print('Bye')
 
 
 
