@@ -29,6 +29,13 @@ def write_balance(balance):                                 #write balance at th
             fh.write(str(balance)+'\n')
             fh.writelines(content[1:])                      #skip the old balance
 
+def file_to_list():                                         #read file and save it in a list
+    content = []
+    with open(file_path, 'r') as fh:
+        for line in fh.readlines():
+            content.append(re.split(':|\n', line)[:-1])
+    return content
+
 def user_add(user_input):                                   #user input 'add'
     balance = read_balance()
     error_exist = False                                     #error exist flag
@@ -101,19 +108,19 @@ def user_reset():                                           #user input 'reset'
     print(f'{file_path} has been Removed')
 
 def user_find(user_input):
-    user_input = user_input.replace(' ', '')
-    user_input_comma = user_input.split(',')
-    content = []
+    user_input = (user_input.replace(' ', '')).split(',')
+    content = file_to_list()
     summary = 0.0
-    with open(file_path, 'r') as fh:
-        for line in fh.readlines():
-            content.append(re.split(':|\n', line)[:2])
+    index = 1
+    print('   {:<20}{:<20}'.format('Description', 'Amount'))
     divide()
-    for key in user_input_comma:
-        for i, j in content:
-            if key == i or key == j:
-                print(f'{i:<20}{j}')
-                summary += float(j)
+    for user_key in user_input:
+        for key, value in content[1:]:
+            if user_key == key:
+                value = float(value)
+                print(f'{index:<3}{key:<20}{value:<20}')
+                summary += value
+                index += 1
             else:
                 pass
     divide()
