@@ -12,6 +12,11 @@ file_path = '../record.txt'                                 #difine file path
 def divide():                                               #divide line function
     print('='*40)
 
+def read_data(record):
+    with open(file_path, 'r') as fh:
+        data = fh.readlines()
+    return record + data
+
 def read_balance():                                         #read balance function and return float
     with open(file_path, 'r') as fh:
         balance_in_file = float(fh.readline())                #read first line in file
@@ -130,7 +135,9 @@ def user_find(user_input):
 #main code
 #=======================================================================================
 #initial account balance
+record = []
 if os.path.exists(file_path):                               #check if file exist
+    record = read_data(record)
     print('Welcome back!\n')
 else:                                                       #do not exist then create new
     balance = 0.0                                           #initial balance
@@ -140,6 +147,8 @@ else:                                                       #do not exist then c
         sys.stderr.write('Invalid value for money. Set to 0 by default.\n\n')
     finally:
         write_balance(balance)
+
+print(record)
 
 while True:
     user_input = input('What do you want to do (add/view/delete/exit/reset/find)? ')
