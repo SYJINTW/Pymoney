@@ -9,37 +9,9 @@ from pycategory import *
 
 #function
 #=======================================================================================
-def main():
-    records = Records()
-    categories = Categories()
-    while True:
-        user_input = input('What do you want to do (add/view/view categories/delete/find/reset/exit)? ')
-        if user_input == 'add':
-            add_record = input()
-            records.user_add(add_record, categories)
-        elif user_input == 'view':
-            records.user_view()
-        elif user_input == 'view categories':
-            categories.user_view_categories(categories._categories) 
-        elif user_input == 'delete':
-            delete_record = input('Which record do you want to delete?\n')
-            records.user_delete(delete_record)    
-        elif user_input == 'exit':
-            records.user_save(categories._categories)
-            break
-        elif user_input == 'reset':
-            records.user_reset()
-            break
-        elif user_input == 'find':
-            category = input('Which category do you want to find?\n')
-            target_categories = categories.find_categories(category, categories._categories)
-            records.user_find(target_categories)
-        else:
-            sys.stderr.write('Invalid command. Try again\n\n')
-
-    print('Bye\n')
-
 def update_result_box(records_data):
+    global delete_flag
+    delete_flag = True
     amount = records._initial_money
     for index, line in enumerate(records_data):
         content = line.split(':')
@@ -72,17 +44,19 @@ def add_call_back():
 
 def delete_call_back():
     try:
-        index = result_box.curselection()[0]
-        value = result_box.get(result_box.curselection())
-        print(value)
-        records.user_delete(value, index)
-        clear_result_box()
-        update_result_box(records._records)
-        print('Delete')
+        if delete_flag:
+            index = result_box.curselection()[0]
+            records._initial_money -= float(records._records[index].split(':')[3])
+            del records._records[index]
+            clear_result_box()
+            update_result_box(records._records)
+
     except IndexError:
         pass
 
 def find_call_back():
+    global delete_flag
+    delete_flag = False
     user_input = f'{find_str.get()}'
     clear_result_box()
     target_categories = categories.find_categories(user_input, categories._categories)
@@ -94,15 +68,24 @@ def reset_call_back():
     update_result_box(records._records)
     clear_text_input()
 
+def clean_call_back():
+    global save_flag
+    records.user_clean()
+    save_flag = False
+    root.quit()
+
 #initial
 #=======================================================================================
 records = Records()
 categories = Categories()
+delete_flag = True
+save_flag = True
 
 #tkinter UI
 #=======================================================================================
 root = tkinter.Tk()
 root.title('PyMoney')
+root.resizable(False, False)
 window = tkinter.Frame(root, borderwidth=5)
 window.grid(row = 0, column = 0)
 
@@ -122,17 +105,25 @@ reset_btn = tkinter.Button(window, text = 'Reset', command = reset_call_back)
 reset_btn.grid(row = 0, column = 3)
 
 #result
-result_box = tkinter.Listbox(window)
-result_box.grid(row = 1, column = 0, rowspan = 7, columnspan = 4, sticky = tkinter.E+tkinter.W)
+x_scroll = tkinter.Scrollbar(window, orient = tkinter.HORIZONTAL)
+x_scroll.grid(row = 8, column = 0, columnspan = 3, sticky = tkinter.N+tkinter.E+tkinter.W)
+y_scroll = tkinter.Scrollbar(window)
+y_scroll.grid(row = 1, column = 3, rowspan = 7, sticky = tkinter.N+tkinter.S+tkinter.W)
+
+result_box = tkinter.Listbox(window, xscrollcommand = x_scroll.set, yscrollcommand = y_scroll.set)
+result_box.grid(row = 1, column = 0, rowspan = 7, columnspan = 3, sticky = tkinter.E+tkinter.W)
+
+x_scroll.config(command = result_box.xview)
+y_scroll.config(command = result_box.yview)
 
 #total
 total_str = tkinter.StringVar()
 total_entry = tkinter.Label(window, textvariable = total_str)
-total_entry.grid(row = 8, column = 0, columnspan = 2, sticky = tkinter.W)
+total_entry.grid(row = 9, column = 0, columnspan = 2, sticky = tkinter.W)
 
 #delete
 delete_btn = tkinter.Button(window, text = 'Delete', command = delete_call_back)
-delete_btn.grid(row = 8, column = 3, sticky = tkinter.W)
+delete_btn.grid(row = 9, column = 3, sticky = tkinter.W)
 
 #initial
 initial_label = tkinter.Label(window, text = 'Initial money')
@@ -181,19 +172,16 @@ amount_entry.grid(row = 6, column = 5, sticky = tkinter.E+tkinter.W)
 add_btn = tkinter.Button(window, text = 'Add a record', command = add_call_back)
 add_btn.grid(row = 7, column = 5, sticky = tkinter.E)
 
+#clean data
+clean_btn = tkinter.Button(window, text = 'Clean', command = clean_call_back)
+clean_btn.grid(row = 9, column = 5, sticky = tkinter.E)
+
 #=======================================================================================
 update_result_box(records._records)
 window.mainloop()
-records.user_save(categories._categories)
+if save_flag:
+    records.user_save(categories._categories)
     
-
-
-
-
-
-
-
-
 
 
 

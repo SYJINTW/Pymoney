@@ -43,7 +43,6 @@ class Records:
             with open(file_path, 'r') as fh:
                 data = fh.readlines()
             data = list(map(self.clean_newline, data))
-            print('Welcome back!\n')
             self._initial_money = float(data[data.index('Balance:')+1])
             self._records = data[data.index('Records:')+1:data.index('SaveTime:')]
         else:
@@ -80,8 +79,6 @@ class Records:
 
         if error_exist == True:                                 #format remind
             sys.stderr.write('The format of a record should be like this: YYYY-MM-DD food breakfast -50\n\n')
-        else:
-            print('Add Success\n')
         return
     
     def user_view(self):
@@ -148,10 +145,9 @@ class Records:
         except Exception:
                 sys.stderr.write('Wrong format\n\n')
     
-    def user_reset(self):                                           #user input 'reset'
+    def user_clean(self):                                           #user input 'reset'
         if os.path.exists(file_path):
             os.remove(file_path)
-        print(f'{file_path} has been Removed')
         
     def user_save(self, categories):
         try:
