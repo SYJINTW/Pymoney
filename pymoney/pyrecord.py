@@ -5,6 +5,7 @@ import copy
 import re
 import time
 from datetime import date
+from tkinter import messagebox
 
 #reset
 #=======================================================================================
@@ -54,33 +55,26 @@ class Records:
         error_exist = False                                     #error exist flag
         for i in user_inputs:
             try:                                            #set try-except to skip the error data
+                error_str = 'Unknown.'
                 user_input = i.split()
-                if len(user_input) == 3:
-                    user_input.insert(0, str(date.today()))
-                elif len(user_input) == 4:
+                if len(user_input) == 4:
                     if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', user_input[0]):
-                        sys.stderr.write('The format of date should be YYYY-MM-DD.')
+                        error_str = 'The format of date should be YYYY-MM-DD.'
                         raise ValueError
                 else:
                     print(user_input)
-                    sys.stderr.write('Wrong number of argv.')
+                    error_str = 'Wrong number of argv.'
                     raise IndexError
-
                 record = Record(*user_input)
                 if input_categories.is_category_valid(record.category, input_categories._categories):
                     self._initial_money += record.amount
                     self._records.append(f'{record.date}:{record.category}:{record.name}:{record.amount}')
                 else:
-                    raise ValueError(f'Invalid value for categories. Fail to add a record {i}.\n')
-
-            except (IndexError,TypeError,ValueError):                              #if the format is wrong
-                error_exist = True
-                sys.stderr.write(f'Fail to add a record {i}.\n')
-
-        if error_exist == True:                                 #format remind
-            sys.stderr.write('The format of a record should be like this: YYYY-MM-DD food breakfast -50\n\n')
-        return
-    
+                    error_str = f'Invalid value for categories. Fail to add a record {i}.'
+                    raise ValueError
+            except (IndexError, TypeError, ValueError):                              #if the format is wrong
+                messagebox.showerror('Error', error_str)
+                
     def user_view(self):
         print("Here's your expense and income records:")
         print(f'{"Date":<20}{"Category":<20}{"Description":<20}{"Amount":<20}')
@@ -161,7 +155,7 @@ class Records:
             print('Finish Saving')
             return
         except:
-            sys.stderr.write('Fail To Save\n')
+            messagebox.showerror('Error', 'Fail To Save.')
     
     def user_find(self, target_categories, view):
         amount = 0.0

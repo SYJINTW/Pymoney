@@ -50,7 +50,6 @@ def delete_call_back():
             del records._records[index]
             clear_result_box()
             update_result_box(records._records)
-
     except IndexError:
         pass
 
