@@ -15,7 +15,7 @@ def update_result_box(records_data):
     amount = records._initial_money
     for index, line in enumerate(records_data):
         content = line.split(':')
-        result_box.insert(index, f'{content[0]:<15}{content[1]:<20}{content[2]:<20}{content[3]:<20}') #date:name:amount:category
+        result_box.insert(index, f'{content[0]:<12}{content[1]:<15}{content[2]:<15}{content[3]:<6}') #date:name:amount:category
     total_str.set(f'Now you have {amount} dollars.')
 
 def clear_result_box():

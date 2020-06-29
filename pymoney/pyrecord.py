@@ -163,7 +163,7 @@ class Records:
         for line in self._records:
             content = line.split(':')
             if content[1] in target_categories:
-                view.insert(index, f'{content[0]:<15}{content[1]:<20}{content[2]:<20}{content[3]:<20}')
+                view.insert(index, f'{content[0]:<12}{content[1]:<15}{content[2]:<15}{content[3]:<6}')
                 amount += float(content[3])
                 index += 1
         return amount
